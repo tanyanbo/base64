@@ -83,9 +83,9 @@ fn decode(input: String) -> Vec<u8> {
             panic!("Invalid base64 string");
         }
 
-        result.push(((first_sextet << 2) | ((second_sextet & 0b110000) >> 4)) as u8);
-        result.push((((second_sextet & 0b1111) << 4) | ((third_sextet & 0b111100) >> 2)) as u8);
-        result.push((((third_sextet & 0b11) << 6) | fourth_sextet) as u8);
+        result.push((first_sextet << 2) | ((second_sextet & 0b110000) >> 4));
+        result.push(((second_sextet & 0b1111) << 4) | ((third_sextet & 0b111100) >> 2));
+        result.push(((third_sextet & 0b11) << 6) | fourth_sextet);
     }
 
     if let Some(value) = first_extra_value {
