@@ -119,11 +119,12 @@ mod tests {
 
     #[test]
     fn encode_test() {
-        let _ = bytes_to_base64(
-            "I fairly frequently get asked how to implement a linked list in Rust. The answ"
+        let result = bytes_to_base64(
+            "I fairly frequently get asked how to implement a linked list in Rust. The answer honestly depends on what your requirements are, and it's obviously not super easy to answer the question on the spot. As such I've decided to write this book to comprehensively answer the question once and for all."
                 .to_string()
                 .into_bytes(),
         );
+        println!("{}", result);
     }
 
     #[test]
