@@ -16,7 +16,7 @@ const DECODE_TABLE: [i8; 128] = [
     51, -1, -1, -1, -1, -1,
 ];
 
-pub fn bytes_to_base64(bytes: Vec<u8>) -> String {
+pub fn encode(bytes: Vec<u8>) -> String {
     let remainder = bytes.len() % 3;
 
     let mut res = String::with_capacity(4 * (bytes.len() / 3) + if remainder == 0 { 0 } else { 4 });
@@ -119,7 +119,7 @@ mod tests {
 
     #[test]
     fn encode_test() {
-        let result = bytes_to_base64(
+        let result = encode(
             "I fairly frequently get asked how to implement a linked list in Rust. The answer honestly depends on what your requirements are, and it's obviously not super easy to answer the question on the spot. As such I've decided to write this book to comprehensively answer the question once and for all."
                 .to_string()
                 .into_bytes(),
@@ -139,6 +139,6 @@ mod tests {
             .to_string()
             .into_bytes();
 
-        b.iter(|| bytes_to_base64(bytes.clone()));
+        b.iter(|| encode(bytes.clone()));
     }
 }
