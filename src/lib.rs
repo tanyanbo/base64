@@ -256,9 +256,33 @@ mod tests {
     }
 
     #[test]
+    fn encode_test2() {
+        let result = encode("man".to_string().into_bytes());
+        assert_eq!(result, "bWFu".to_string());
+    }
+
+    #[test]
+    fn encode_test3() {
+        let result = encode("manqq".to_string().into_bytes());
+        assert_eq!(result, "bWFucXE=".to_string());
+    }
+
+    #[test]
     fn decode_test() {
         let result = decode("SSBmYWlybHkgZnJlcXVlbnRseSBnZXQgYXNrZWQgaG93IHRvIGltcGxlbWVudCBhIGxpbmtlZCBsaXN0IGluIFJ1c3QuIFRoZSBhbnN3ZXIgaG9uZXN0bHkgZGVwZW5kcyBvbiB3aGF0IHlvdXIgcmVxdWlyZW1lbnRzIGFyZSwgYW5kIGl0J3Mgb2J2aW91c2x5IG5vdCBzdXBlciBlYXN5IHRvIGFuc3dlciB0aGUgcXVlc3Rpb24gb24gdGhlIHNwb3QuIEFzIHN1Y2ggSSd2ZSBkZWNpZGVkIHRvIHdyaXRlIHRoaXMgYm9vayB0byBjb21wcmVoZW5zaXZlbHkgYW5zd2VyIHRoZSBxdWVzdGlvbiBvbmNlIGFuZCBmb3IgYWxsLg==".into());
         assert_eq!(result, "I fairly frequently get asked how to implement a linked list in Rust. The answer honestly depends on what your requirements are, and it's obviously not super easy to answer the question on the spot. As such I've decided to write this book to comprehensively answer the question once and for all.".to_string().into_bytes());
+    }
+
+    #[test]
+    fn decode_test2() {
+        let result = decode("bWFu".into());
+        assert_eq!(result, "man".to_string().into_bytes());
+    }
+
+    #[test]
+    fn decode_test3() {
+        let result = decode("bWFucXE=".into());
+        assert_eq!(result, "manqq".to_string().into_bytes());
     }
 
     #[bench]
