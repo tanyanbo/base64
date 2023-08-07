@@ -5,8 +5,7 @@ const TABLE: [&str; 64] = [
     "5", "6", "7", "8", "9", "+", "/",
 ];
 
-pub fn string_to_base64(input: String) -> String {
-    let bytes = input.into_bytes();
+pub fn bytes_to_base64(bytes: Vec<u8>) -> String {
     let mut res = String::from("");
 
     for i in 0..(bytes.len() / 3) {
@@ -45,7 +44,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let res = string_to_base64("I fairly frequently get asked how to implement a linked list in Rust. The answer honestly depends on what your requirements are, and it's obviously not super easy to answer the question on the spot. As such I've decided to write this book to comprehensively answer the question once and for all.".into());
+        let res = bytes_to_base64("I fairly frequently get asked how to implement a linked list in Rust. The answer honestly depends on what your requirements are, and it's obviously not super easy to answer the question on the spot. As such I've decided to write this book to comprehensively answer the question once and for all.".to_string().into_bytes());
         println!("{}", res);
     }
 }
