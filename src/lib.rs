@@ -285,6 +285,13 @@ mod tests {
         assert_eq!(result, "manqq".to_string().into_bytes());
     }
 
+    #[test]
+    #[should_panic]
+    fn decode_test4() {
+        let result = decode("bWFucXE===".into());
+        assert_eq!(result, "manqq".to_string().into_bytes());
+    }
+
     #[bench]
     fn benchmark(b: &mut Bencher) {
         let bytes = "I fairly frequently get asked how to implement a linked list in Rust. "
