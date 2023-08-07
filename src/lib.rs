@@ -10,7 +10,7 @@ const ENCODE_TABLE: [&str; 64] = [
 const DECODE_TABLE: [i8; 128] = [
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
-    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, 64, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8,
     9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, -1, 26,
     27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
     51, -1, -1, -1, -1, -1,
@@ -52,12 +52,38 @@ pub fn bytes_to_base64(bytes: Vec<u8>) -> String {
 }
 
 fn decode(input: String) -> Vec<u8> {
-    let input_bytes = input.into_bytes();
+    if input.len() == 0 {
+        return vec![];
+    }
+
+    let mut input_bytes = input.into_bytes();
     if input_bytes.len() % 4 != 0 {
         panic!("Invalid base64 string");
     }
 
     let mut result = Vec::with_capacity((3 * input_bytes.len()) / 4);
+
+    let mut first_extra_value: Option<u8> = None;
+    let mut second_extra_value: Option<u8> = None;
+
+    if input_bytes[input_bytes.len() - 2] == 61 {
+        let first_sextet = DECODE_TABLE[input_bytes[input_bytes.len() - 4] as usize];
+        let second_sextet = DECODE_TABLE[input_bytes[input_bytes.len() - 3] as usize];
+
+        first_extra_value = Some(((first_sextet << 2) | ((second_sextet & 0b110000) >> 4)) as u8);
+
+        input_bytes.truncate(input_bytes.len() - 4);
+    } else if input_bytes[input_bytes.len() - 1] == 61 {
+        let first_sextet = DECODE_TABLE[input_bytes[input_bytes.len() - 4] as usize];
+        let second_sextet = DECODE_TABLE[input_bytes[input_bytes.len() - 3] as usize];
+        let third_sextet = DECODE_TABLE[input_bytes[input_bytes.len() - 2] as usize];
+
+        first_extra_value = Some(((first_sextet << 2) | ((second_sextet & 0b110000) >> 4)) as u8);
+        second_extra_value =
+            Some((((second_sextet & 0b1111) << 4) | ((third_sextet & 0b111100) >> 2)) as u8);
+
+        input_bytes.truncate(input_bytes.len() - 4);
+    }
 
     for i in 0..input_bytes.len() / 4 {
         let first_sextet = DECODE_TABLE[input_bytes[i * 4] as usize];
@@ -72,6 +98,14 @@ fn decode(input: String) -> Vec<u8> {
         result.push(((first_sextet << 2) | ((second_sextet & 0b110000) >> 4)) as u8);
         result.push((((second_sextet & 0b1111) << 4) | ((third_sextet & 0b111100) >> 2)) as u8);
         result.push((((third_sextet & 0b11) << 6) | fourth_sextet) as u8);
+    }
+
+    if let Some(value) = first_extra_value {
+        result.push(value);
+    }
+
+    if let Some(value) = second_extra_value {
+        result.push(value);
     }
 
     result
@@ -94,7 +128,7 @@ mod tests {
 
     #[test]
     fn decode_test() {
-        let result = decode("SSBmYWlybHkgZnJlcXVlbnRseSBnZXQgYXNrZWQgaG93IHRvIGltcGxlbWVudCBhIGxpbmtlZCBsaXN0IGluIFJ1c3QuIFRoZSBhbnN3ZXIgaG9uZXN0bHkgZGVwZW5kcyBvbiB3aGF0IHlvdXIgcmVxdWlyZW1lbnRzIGFyZSwgYW5kIGl0J3Mgb2J2aW91c2x5IG5vdCBzdXBlciBlYXN5IHRvIGFuc3dlciB0aGUgcXVlc3Rpb24gb24gdGhlIHNwb3QuIEFzIHN1Y2ggSSd2ZSBkZWNpZGVkIHRvIHdyaXRlIHRoaXMgYm9vayB0byBjb21wcmVoZW5zaXZlbHkgYW5zd2VyIHRoZSBxdWVzdGlvbiBvbmNlIGFuZCBmb3IgYWxs".into());
+        let result = decode("SSBmYWlybHkgZnJlcXVlbnRseSBnZXQgYXNrZWQgaG93IHRvIGltcGxlbWVudCBhIGxpbmtlZCBsaXN0IGluIFJ1c3QuIFRoZSBhbnN3ZXIgaG9uZXN0bHkgZGVwZW5kcyBvbiB3aGF0IHlvdXIgcmVxdWlyZW1lbnRzIGFyZSwgYW5kIGl0J3Mgb2J2aW91c2x5IG5vdCBzdXBlciBlYXN5IHRvIGFuc3dlciB0aGUgcXVlc3Rpb24gb24gdGhlIHNwb3QuIEFzIHN1Y2ggSSd2ZSBkZWNpZGVkIHRvIHdyaXRlIHRoaXMgYm9vayB0byBjb21wcmVoZW5zaXZlbHkgYW5zd2VyIHRoZSBxdWVzdGlvbiBvbmNlIGFuZCBmb3IgYWxsLg==".into());
         println!("{:?}", std::str::from_utf8(&result));
     }
 
