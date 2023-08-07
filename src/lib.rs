@@ -35,7 +35,7 @@ pub fn string_to_base64(input: String) -> String {
             res += "=";
             return res;
         }
-        _ => panic!("Invalid input"),
+        _ => unreachable!("Invalid input"),
     }
 }
 
@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let res = string_to_base64("manlibrs".into());
+        let res = string_to_base64("I fairly frequently get asked how to implement a linked list in Rust. The answer honestly depends on what your requirements are, and it's obviously not super easy to answer the question on the spot. As such I've decided to write this book to comprehensively answer the question once and for all.".into());
         println!("{}", res);
     }
 }
