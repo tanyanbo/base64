@@ -6,7 +6,9 @@ const TABLE: [&str; 64] = [
 ];
 
 pub fn bytes_to_base64(bytes: Vec<u8>) -> String {
-    let mut res = String::from("");
+    let remainder = bytes.len() % 3;
+
+    let mut res = String::with_capacity(4 * (bytes.len() / 3) + if remainder == 0 { 0 } else { 4 });
 
     for i in 0..(bytes.len() / 3) {
         res += TABLE[((bytes[3 * i] & 0b11111100) >> 2) as usize];
@@ -17,7 +19,6 @@ pub fn bytes_to_base64(bytes: Vec<u8>) -> String {
         res += TABLE[(bytes[3 * i + 2] & 0b111111) as usize];
     }
 
-    let remainder = bytes.len() % 3;
     match remainder {
         0 => return res,
         1 => {
